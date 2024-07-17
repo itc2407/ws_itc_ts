@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý quỹ</title>
+    <link rel="icon" href="logo_itc.edu.png">
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    #dataTable tbody {
+        display: block;
+        max-height: 550px;
+        overflow-y: auto;
+    }
+
+    #dataTable thead,
+    #dataTable tbody tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        padding: 8px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    .filter-container {
+        margin-bottom: 10px;
+    }
+
+    .tke {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    #total-amount {
+        background-color: navy;
+        color: white;
+        text-align: center;
+        border-radius: 10px;
+        padding: 10px;
+        font-size: 18px;
+    }
+
+    #total-expense {
+        background-color: navy;
+        color: white;
+        text-align: center;
+        border-radius: 10px;
+        padding: 10px;
+        font-size: 18px;
+    }
+
+    td:nth-child(3) {
+        text-align: left;
+    }
+
+    #total-income {
+        background-color: navy;
+        color: white;
+        text-align: center;
+        border-radius: 10px;
+        padding: 10px;
+        font-size: 18px;
+    }
+
+    #remaining-amount {
+        background-color: navy;
+        color: white;
+        text-align: center;
+        border-radius: 10px;
+        padding: 10px;
+        font-size: 18px;
+    }
+
+    #dataTable {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+
+    .filter-container {
+        display: flex;
+        justify-content: center;
+    }
+
+    select {
+        width: 100px;
+        height: 30px;
+        font-size: 15px;
+    }
+
+    .income {
+        color: green;
+        font-weight: bold;
+    }
+
+    .expense {
+        color: red;
+        font-weight: bold;
+    }
+
+    .blurred {
+        filter: blur(3px);
+    }
+
+    .password-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .password-container input,
+    .password-container button {
+        margin: 0 5px;
+    }
+</style>
+
+<body>
+    <button style="background-color: navy; padding: 10px;"><a href="./index.html"
+            style="color: white; text-decoration: none; padding: 0 10px;">Quay lại</a></button>
+    <div class="tke">
+        <div id="total-amount"></div>
+        <div id="total-expense"></div>
+        <div id="total-income"></div>
+        <div id="remaining-amount"></div>
+    </div>
+    <div class="filter-container" style="margin: 20px 0;">
+        <select id="filter-type">
+            <option value="">Tất cả</option>
+        </select>
+    </div>
+    <div class="password-container">
+        <input type="password" id="password-input" placeholder="Nhập mật khẩu">
+        <button id="password-submit">Xác nhận</button>
+    </div>
+    <table id="dataTable" class="blurred">
+        <thead>
+            <tr>
+                <th>Tên</th>
+                <th>Ngày</th>
+                <th>Ghi chú</th>
+                <th>Loại chi tiêu</th>
+                <th>Số tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <script>
+
+        const sheetUrl = 'https://docs.google.com/spreadsheets/d/1rR0O90hpWbM5qcM2Y8G30tg3CsX8PMygWh8sx1f4Ido/edit#gid=0';
+        const sheetId = '1rR0O90hpWbM5qcM2Y8G30tg3CsX8PMygWh8sx1f4Ido';
+        const sheetName = 'tienquy';
+        fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`)
+            .then(response => response.text())
+            .then(data => {
+                const jsonData = JSON.parse(data.substring(47, data.length - 2));
+                const rows = jsonData.table.rows;
+                const expenseTypes = new Set();
+                rows.forEach(row => {
+                    expenseTypes.add(row.c[3].v);
+                });
+                const filterSelect = document.getElementById('filter-type');
+                expenseTypes.forEach(type => {
+                    const option = document.createElement('option');
+                    option.value = type;
+                    option.textContent = type;
+                    filterSelect.appendChild(option);
+                });
+                const tableBody = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
+                let totalAmount = 0;
+                rows.forEach(row => {
+                    const newRow = document.createElement('tr');
+                    row.c.forEach((cell, index) => {
+                        const newCell = document.createElement('td');
+                        if (index === 4) {
+                            const amount = cell.v;
+                            if (row.c[3].v === 'Thu') {
+                                newCell.classList.add('income');
+                            } else if (row.c[3].v === 'Chi') {
+                                newCell.classList.add('expense');
+                            }
+                            newCell.textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+                            totalAmount += amount;
+                        } else {
+                            newCell.textContent = cell.v;
+                        }
+                        newRow.appendChild(newCell);
+                    });
+                    tableBody.appendChild(newRow);
+                });
+                const totalAmountElement = document.getElementById('total-amount');
+                totalAmountElement.textContent = `Tổng số tiền quỹ: ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalAmount)}`;
+                let totalExpense = 0;
+                let totalIncome = 0;
+                rows.forEach(row => {
+                    const amount = row.c[4].v;
+                    const type = row.c[3].v;
+
+                    if (type === 'Chi') {
+                        totalExpense += amount;
+                    } else if (type === 'Thu') {
+                        totalIncome += amount;
+                    }
+                });
+                const totalExpenseElement = document.getElementById('total-expense');
+                const totalIncomeElement = document.getElementById('total-income');
+                totalExpenseElement.textContent = `Tổng số tiền chi: ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalExpense)}`;
+                totalIncomeElement.textContent = `Tổng số tiền thu: ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(totalIncome)}`;
+                filterSelect.addEventListener('change', () => {
+                    const filterType = filterSelect.value;
+                    filterData(filterType);
+                });
+                const remainingAmount = totalIncome - totalExpense;
+                const remainingAmountElement = document.getElementById('remaining-amount');
+                remainingAmountElement.textContent = `Số tiền quỹ còn lại: ${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(remainingAmount)}`;
+            })
+            .catch(error => console.error(error));
+        function filterData(filterType) {
+            const tableBody = document.getElementById('dataTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+            fetch(`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`)
+                .then(response => response.text())
+                .then(data => {
+                    const jsonData = JSON.parse(data.substring(47, data.length - 2));
+                    const rows = jsonData.table.rows;
+                    rows.forEach(row => {
+                        if (filterType === '' || row.c[3].v === filterType) {
+                            const newRow = document.createElement('tr');
+                            row.c.forEach(cell => {
+                                const newCell = document.createElement('td');
+                                newCell.textContent = cell.v;
+                                newRow.appendChild(newCell);
+                            });
+                            tableBody.appendChild(newRow);
+                        }
+                    });
+                })
+                .catch(error => console.error(error));
+        }
+        const passwordInput = document.getElementById('password-input');
+        const passwordSubmitButton = document.getElementById('password-submit');
+        const dataTable = document.getElementById('dataTable');
+
+        passwordSubmitButton.addEventListener('click', () => {
+            const password = passwordInput.value;
+            // Kiểm tra mật khẩu
+            if (password === 'tuyensinh') {
+                dataTable.classList.remove('blurred');
+                // Hiển thị dữ liệu bảng
+            } else {
+                dataTable.classList.add('blurred');
+                // Ẩn dữ liệu bảng
+            }
+        });
+    </script>
+</body>
+
+</html>

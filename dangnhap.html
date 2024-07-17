@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        input[type=password] {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ql" style="position: absolute; top: 0; left: 0;"><button style="background-color: navy;"><a
+                href="./index.html" style="color: white; text-decoration: none;
+    padding: 0 10px;">Quay lại</a></button></div>
+    <div class="login-container">
+        <h2>Login</h2>
+        <input type="password" id="password" pattern="\d{6}" title="Vui lòng nhập 6 số" placeholder="6-digit Password"
+            required>
+        <button onclick="login()">Login</button>
+    </div>
+
+    <script>
+        function login() {
+            var password = document.getElementById("password").value;
+            // Thay đổi các thông tin đăng nhập có thể được sử dụng
+            if (password === "012345") {
+                // Chuyển hướng đến trang khác
+                window.location.href = "https://docs.google.com/spreadsheets/d/1rR0O90hpWbM5qcM2Y8G30tg3CsX8PMygWh8sx1f4Ido/edit?usp=sharing";
+            } else {
+                alert("Sai mật khẩu!");
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phòng tuyển sinh</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="logo_itc.edu.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+</head>
+
+<body>
+    <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Loading...</p>
+    </div>
+    <header>
+        <!-- TB -->
+        <div class="webts" id="ct">
+            <table id="tuition-table">
+                <thead style="position: sticky; top: -6%; z-index: 100;">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nội dung</th>
+                        <th>Ngày đăng</th>
+                        <th>Tiêu đề</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <!-- CN -->
+        <div class="chucnang" id="ct">
+            <div class="cn"><a href="./tinnhan.html">Tin nhắn nhanh</a></div>
+            <div class="cn"><a href="./quy.html">Quản lý tiền quỹ</a></div>
+            <div class="cn"><a href="./xlexcel.html">Lọc dữ liệu.xlsx</a></div>
+            <div class="cn"><a href="./dangnhap.html">Admin</a></div>
+        </div>
+        </div>
+        <!-- TCLT -->
+        <div class="tr-container" id="ct" style="margin-top: 10px;">
+            <div class="tr-content">
+                <div> <input type="text" id="tr-input" placeholder="Nhập tên hoặc ngày trực">
+                    <button id="tr-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    <button id="copy-btn" style="padding: 4px;"><i class="fa-solid fa-copy"></i> Xuất Excel</button>
+                </div>
+                <table id="tr-table">
+                    <thead>
+                        <tr>
+                            <th>Tên nhân viên</th>
+                            <th>Ngày trực</th>
+                            <th>Thứ trực</th>
+                            <th>Buổi trực</th>
+                            <th>Đổi ca</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </header>
+    <!-- TT -->
+    <div id="cardContainer"></div>
+    <script src="main.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel</title>
+    <link rel="icon" href="logo_itc.edu.png">
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+</head>
+<style>
+    *{
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    bo
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th,
+    td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    .filter-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 30px 0;
+    }
+
+    .filter-container label {
+        margin-right: 10px;
+    }
+
+    button {
+        background-color: navy;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    #no-data-message {
+        display: none;
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 20px;
+    }
+
+    input {
+        box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+        border: none;
+        padding: 8px;
+        outline: none;
+    }
+
+    #loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s, visibility 0.3s;
+    }
+
+    .loading-spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    h3 {
+        display: none;
+    }
+
+    @media (max-width: 767px) {
+        .mb {
+            display: none;
+            background-color: red;
+        }
+
+        h3 {
+            color: navy;
+            display: block;
+            text-align: center;
+        }
+    }
+</style>
+
+<body>
+    <button style="background-color: navy;"><a href="./index.html" style="color: white; text-decoration: none;
+    padding: 0 10px;">Quay lại</a></button>
+    <h3>Website chỉ khả dụng trên windows</h3>
+    <div class="mb">
+        <div class="filter-container">
+            <input type="file" id="file-input" accept=".xlsx,.xls">
+            <input type="text" id="filter-input" placeholder="Enter search term">
+            <button id="filter-button">Filter</button>
+            <button id="sort-button">Sort</button>
+            <button id="export-button">Export to Excel</button>
+        </div>
+        <div id="table-container"></div>
+        <div id="no-data-message">No data available</div>
+        <div id="loading-overlay">
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+    <script>
+        var tableData;
+        var filteredData = [];
+
+        document.getElementById('file-input').addEventListener('change', function (event) {
+            var file = event.target.files[0];
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var data = new Uint8Array(e.target.result);
+                var workbook = XLSX.read(data, { type: 'array' });
+                var worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                tableData = XLSX.utils.sheet_to_json(worksheet);
+                filteredData = [...tableData];
+                renderTable(filteredData);
+                toggleNoDataMessage(filteredData.length > 0);
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        document.getElementById('filter-button').addEventListener('click', function () {
+            var filterText = document.getElementById('filter-input').value.toLowerCase();
+            filteredData = tableData.filter(function (row) {
+                for (var key in row) {
+                    if (row[key].toString().toLowerCase().includes(filterText)) {
+                        return true;
+                    }
+                }
+                return false;
+            });
+            renderTable(filteredData);
+            toggleNoDataMessage(filteredData.length > 0);
+        });
+
+        document.getElementById('sort-button').addEventListener('click', function () {
+            filteredData.sort(function (a, b) {
+                for (var key in a) {
+                    if (a[key] < b[key]) return -1;
+                    if (a[key] > b[key]) return 1;
+                }
+                return 0;
+            });
+            renderTable(filteredData);
+            toggleNoDataMessage(filteredData.length > 0);
+        });
+
+        document.getElementById('export-button').addEventListener('click', function () {
+            if (filteredData.length > 0) {
+                var worksheet = XLSX.utils.json_to_sheet(filteredData);
+                var workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+                XLSX.writeFile(workbook, 'cnhn-data.xlsx');
+            } else {
+                toggleNoDataMessage(false);
+            }
+        });
+        function renderTable(data) {
+            var table = document.createElement('table');
+            var tableContainer = document.getElementById('table-container');
+            tableContainer.innerHTML = '';
+            tableContainer.appendChild(table);
+
+            var headerRow = table.insertRow();
+            for (var key in data[0]) {
+                var th = document.createElement('th');
+                th.textContent = key;
+                headerRow.appendChild(th);
+            }
+            var deleteHeader = document.createElement('th');
+            deleteHeader.textContent = 'No data available';
+            headerRow.appendChild(deleteHeader);
+
+            for (var i = 0; i < data.length; i++) {
+                var dataRow = table.insertRow();
+                for (var key in data[i]) {
+                    var td = document.createElement('td');
+                    td.textContent = data[i][key];
+                    dataRow.appendChild(td);
+                }
+                var deleteCell = dataRow.insertCell();
+                var deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.addEventListener('click', function () {
+                    deleteRow(this);
+                });
+                deleteCell.appendChild(deleteButton);
+            }
+        }
+        function deleteRow(button) {
+            var row = button.parentNode.parentNode;
+            var table = row.parentNode;
+            var index = row.rowIndex - 1;
+            table.deleteRow(row.rowIndex);
+            filteredData.splice(index, 1);
+            toggleNoDataMessage(filteredData.length > 0);
+        }
+
+        function toggleNoDataMessage(hasData) {
+            var noDataMessage = document.getElementById('no-data-message');
+            noDataMessage.style.display = hasData ? 'none' : 'block';
+        }
+        // Show loading overlay
+        function showLoading() {
+            var loadingOverlay = document.getElementById('loading-overlay');
+            loadingOverlay.style.opacity = '1';
+            loadingOverlay.style.visibility = 'visible';
+        }
+
+        // Hide loading overlay
+        function hideLoading() {
+            var loadingOverlay = document.getElementById('loading-overlay');
+            loadingOverlay.style.opacity = '0';
+            loadingOverlay.style.visibility = 'hidden';
+        }
+
+        // Show loading overlay when data is being loaded
+        document.getElementById('file-input').addEventListener('change', function (event) {
+            showLoading();
+            var file = event.target.files[0];
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var data = new Uint8Array(e.target.result);
+                var workbook = XLSX.read(data, { type: 'array' });
+                var worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                tableData = XLSX.utils.sheet_to_json(worksheet);
+                filteredData = [...tableData];
+                renderTable(filteredData);
+                toggleNoDataMessage(filteredData.length > 0);
+                hideLoading();
+            };
+            reader.readAsArrayBuffer(file);
+        });
+    </script>
+</body>
+
+</html>
