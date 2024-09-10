@@ -108,7 +108,7 @@ th {
 .tk {
     width: 95%;
     display: flex;
-    gap: 30px;
+    gap: 35px;
     justify-content: left;
     margin: 0 auto;
     padding: 10px 0;
@@ -257,14 +257,6 @@ th {
     .tk {
         justify-content: center;
 
-    }
-
-    .ql {
-        display: none;
-    }
-
-    .quaylai {
-        display: none;
     }
 }
 #reloadBtn {
