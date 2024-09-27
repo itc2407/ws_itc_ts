@@ -106,10 +106,10 @@ th {
 
 /* tk */
 .tk {
-    width: 95%;
+    width: 100%;
     display: flex;
-    gap: 35px;
-    justify-content: left;
+    gap: 40px;
+    justify-content: center;
     margin: 0 auto;
     padding: 10px 0;
     flex-wrap: wrap;
